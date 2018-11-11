@@ -61,6 +61,11 @@ bool load_configuration()
 	Serial.println();
 #endif
 
+	if (!config.containsKey("version") || (float)config["version"] != VERSION) {
+		log_e("Wrong config file version");
+		return false;
+	}
+
 	JsonObject &general = config["general"];
 	JsonObject &network = config["network"];
 	JsonObject &hardware = config["hardware"];
@@ -94,7 +99,7 @@ bool load_configuration()
 		hardware["sclpin"]
 	);
 	wifi_init(
-		network["apmode"],
+		network["mode"],
 		network["dhcp"],
 		network["hidden"],
 		(uint32_t)network["offtime"] * 1000,
@@ -121,16 +126,19 @@ bool load_configuration()
 	web_app_init(
 		general["password"]
 	);
+
 	return true;
 }
 
 void setup()
 {
+	/* power stabilization */
 	delay(1000);
+
 #ifdef SERIAL_LOG_ENABLED
 	/* init serial log */
 	SERIAL_LOG_INIT();
-	log_i("ESP RFID v1.0");
+	log_i("ESP RFID v%f", VERSION);
 
 	/* log esp flash stuff on debug */
 	uint16_t flash_hw_size = ESP.getFlashChipRealSize() / 8 / 1024;

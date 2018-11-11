@@ -1,4 +1,4 @@
-var version = "1.0.0";
+var version = "1.0";
 
 var websock = null;
 var wsUri = "ws://" + window.location.hostname + "/ws";
@@ -23,6 +23,7 @@ var nextIsNotJson = false;
 
 var config = {
     "command": "configfile",
+    "version": parseFloat(version),
     "network": {
         "bssid": "",
         "ssid": "esp-rfid",

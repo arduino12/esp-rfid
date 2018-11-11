@@ -30,12 +30,13 @@ bool wifi_start_ap(const char *ssid = NULL, const char *pass = NULL, bool hidden
     else {
         uint8_t macAddr[6];
         WiFi.softAPmacAddress(macAddr);
-        sprintf(ap_ssid, "ESP-RFID-%02x%02x%02x", macAddr[3], macAddr[4], macAddr[5]);
+        sprintf(ap_ssid, "ESP-RFID-%02X%02X%02X", macAddr[3], macAddr[4], macAddr[5]);
     }
 
 	if (!WiFi.softAP(ap_ssid, pass, 1, hidden)) {
         log_e("Failed to start access point...");
-		ESP.restart();
+        // ESP.restart();
+        return false;
 	}
 
     log_i("Access point: ssid: %s, pass: %s, ip %s", ap_ssid, pass ? pass : "", WiFi.softAPIP().toString().c_str());
@@ -106,7 +107,10 @@ bool wifi_init(bool is_ap, bool dhcp, bool hidden,  uint32_t offtime_ms,
         WiFi.config(client_ip, gateway_ip, subnet_ip, dns_ip);
     }
 
-    return wifi_connect_sta(ssid, pass, bssid);
+    if (!wifi_connect_sta(ssid, pass, bssid))
+        return wifi_start_ap(NULL, pass);
+
+    return true;
 }
 
 void wifi_update()
